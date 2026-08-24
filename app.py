@@ -3,6 +3,8 @@ from pypdf import PdfReader
 from docx import Document
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from groq import Groq
+import json
 
 
 # ==============================
@@ -39,12 +41,10 @@ def extract_text_from_file(uploaded_file):
 
         document = Document(uploaded_file)
 
-        text = "\n".join(
+        return "\n".join(
             paragraph.text
             for paragraph in document.paragraphs
         )
-
-        return text
 
     elif file_name.endswith(".txt"):
 
@@ -82,14 +82,99 @@ def calculate_similarity(jd_text, resumes):
 
 
 # ==============================
-# UI
+# Groq LLM Evaluation
 # ==============================
 
-st.title("⚡ TalentRank AI")
-st.caption(
-    "AI-Powered Resume Screening Agent | "
-    "TF-IDF + Cosine Similarity"
-)
+def evaluate_with_llm(client, jd_text, resume_text):
+
+    system_prompt = """
+You are an expert technical recruiter.
+
+Evaluate a candidate resume against a job description.
+
+Return ONLY valid JSON using exactly this structure:
+
+{
+    "matched_skills": [],
+    "missing_skills": [],
+    "experience_years": "",
+    "education": "",
+    "fit_score": 0,
+    "rationale": ""
+}
+
+Rules:
+
+1. matched_skills:
+   List important skills present in both the JD and resume.
+
+2. missing_skills:
+   List important JD skills that are missing or not clearly demonstrated.
+
+3. experience_years:
+   Extract the candidate's relevant professional experience.
+   If unclear, return "Not Specified".
+
+4. education:
+   Extract the candidate's highest relevant education.
+
+5. fit_score:
+   Integer from 0 to 100 representing overall suitability.
+
+6. rationale:
+   Give a concise 2-3 sentence explanation.
+
+Do not invent information.
+"""
+
+    user_prompt = f"""
+JOB DESCRIPTION:
+
+{jd_text}
+
+CANDIDATE RESUME:
+
+{resume_text}
+"""
+
+    try:
+
+        response = client.chat.completions.create(
+
+            model="llama-3.1-8b-instant",
+
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ],
+
+            temperature=0.1,
+
+            response_format={
+                "type": "json_object"
+            }
+        )
+
+        content = response.choices[0].message.content
+
+        return json.loads(content)
+
+    except Exception as e:
+
+        return {
+            "matched_skills": [],
+            "missing_skills": [],
+            "experience_years": "Not Specified",
+            "education": "Not Specified",
+            "fit_score": 0,
+            "rationale": f"LLM evaluation failed: {str(e)[:150]}"
+        }
 
 
 # ==============================
@@ -100,24 +185,54 @@ with st.sidebar:
 
     st.header("⚙️ Configuration")
 
-    st.info(
-        "Upload a Job Description and multiple candidate "
-        "resumes to rank candidates."
+    api_key = st.text_input(
+        "Groq API Key",
+        type="password",
+        placeholder="gsk_..."
+    )
+
+    st.caption(
+        "Your API key is used only for this session "
+        "and is not stored by the application."
     )
 
     st.markdown("---")
 
-    st.subheader("📊 Current Scoring")
+    st.subheader("⚖️ Scoring Weights")
 
-    st.write("NLP Similarity: **100%**")
+    nlp_weight = st.slider(
+        "NLP Similarity",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.4,
+        step=0.05
+    )
+
+    llm_weight = 1.0 - nlp_weight
+
+    st.write(
+        f"LLM Evaluation: **{llm_weight:.0%}**"
+    )
 
 
 # ==============================
-# Input Section
+# Main UI
 # ==============================
+
+st.title("⚡ TalentRank AI")
+
+st.caption(
+    "AI-Powered Resume Screening Agent | "
+    "TF-IDF + Groq LLM"
+)
+
 
 col1, col2 = st.columns(2)
 
+
+# ==============================
+# Job Description
+# ==============================
 
 with col1:
 
@@ -138,6 +253,10 @@ with col1:
         )
     )
 
+
+# ==============================
+# Resume Upload
+# ==============================
 
 with col2:
 
@@ -161,39 +280,63 @@ with col2:
 
 
 # ==============================
-# Screening
+# Run Screening
 # ==============================
 
 st.divider()
 
 
 if st.button(
-    "🚀 Run NLP Screening",
+    "🚀 Run AI Screening",
     type="primary",
     use_container_width=True
 ):
 
+    if not api_key:
+
+        st.error(
+            "Please enter your Groq API key in the sidebar."
+        )
+
+        st.stop()
+
     if not jd_text.strip():
 
-        st.error("Please enter a Job Description.")
+        st.error(
+            "Please enter a Job Description."
+        )
 
-    elif not uploaded_files:
+        st.stop()
 
-        st.error("Please upload at least one resume.")
+    if not uploaded_files:
 
-    else:
+        st.error(
+            "Please upload at least one resume."
+        )
 
-        # ------------------------------
-        # Extract resumes
-        # ------------------------------
+        st.stop()
 
-        resumes = []
 
-        with st.spinner("Extracting resume text..."):
+    # ==============================
+    # Initialize Groq
+    # ==============================
 
-            for file in uploaded_files:
+    client = Groq(api_key=api_key)
 
-                text = extract_text_from_file(file)
+
+    # ==============================
+    # Extract Resumes
+    # ==============================
+
+    resumes = []
+
+    with st.spinner("Extracting resume text..."):
+
+        for file in uploaded_files:
+
+            text = extract_text_from_file(file)
+
+            if text.strip():
 
                 resumes.append({
                     "filename": file.name,
@@ -201,121 +344,221 @@ if st.button(
                 })
 
 
-        # ------------------------------
-        # Validate extraction
-        # ------------------------------
+    if not resumes:
 
-        valid_resumes = [
-            resume
-            for resume in resumes
-            if resume["text"].strip()
-        ]
+        st.error(
+            "Could not extract text from the uploaded resumes."
+        )
 
-        if not valid_resumes:
-
-            st.error(
-                "Could not extract text from the uploaded resumes."
-            )
-
-            st.stop()
+        st.stop()
 
 
-        # ------------------------------
-        # TF-IDF scoring
-        # ------------------------------
+    # ==============================
+    # TF-IDF
+    # ==============================
+
+    with st.spinner(
+        "Calculating NLP similarity..."
+    ):
+
+        nlp_scores = calculate_similarity(
+            jd_text,
+            resumes
+        )
+
+
+    # ==============================
+    # LLM Evaluation
+    # ==============================
+
+    results = []
+
+    progress = st.progress(0)
+
+    for i, resume in enumerate(resumes):
 
         with st.spinner(
-            "Calculating TF-IDF similarity scores..."
+            f"AI evaluating {resume['filename']}..."
         ):
 
-            scores = calculate_similarity(
+            evaluation = evaluate_with_llm(
+                client,
                 jd_text,
-                valid_resumes
+                resume["text"]
             )
 
 
-        # ------------------------------
-        # Create ranking
-        # ------------------------------
-
-        results = []
-
-        for i, resume in enumerate(valid_resumes):
-
-            results.append({
-                "Rank": 0,
-                "Candidate": resume["filename"],
-                "NLP Similarity": scores[i]
-            })
-
-
-        results.sort(
-            key=lambda x: x["NLP Similarity"],
-            reverse=True
+        final_score = round(
+            (nlp_scores[i] * nlp_weight)
+            +
+            (
+                evaluation["fit_score"]
+                * llm_weight
+            ),
+            2
         )
 
 
-        for i, result in enumerate(results):
+        results.append({
 
-            result["Rank"] = i + 1
+            "Candidate": resume["filename"],
+
+            "Final Score": final_score,
+
+            "NLP Similarity": nlp_scores[i],
+
+            "LLM Fit Score": evaluation["fit_score"],
+
+            "Experience": evaluation.get(
+                "experience_years",
+                "Not Specified"
+            ),
+
+            "Education": evaluation.get(
+                "education",
+                "Not Specified"
+            ),
+
+            "Matched Skills": ", ".join(
+                evaluation.get(
+                    "matched_skills",
+                    []
+                )
+            ),
+
+            "Missing Skills": ", ".join(
+                evaluation.get(
+                    "missing_skills",
+                    []
+                )
+            ),
+
+            "Rationale": evaluation.get(
+                "rationale",
+                ""
+            )
+        })
 
 
-        # ------------------------------
-        # Display results
-        # ------------------------------
-
-        st.success(
-            f"Successfully screened {len(results)} candidate(s)."
+        progress.progress(
+            (i + 1) / len(resumes)
         )
 
-        st.subheader("🏆 Candidate Ranking")
+
+    # ==============================
+    # Ranking
+    # ==============================
+
+    results.sort(
+        key=lambda x: x["Final Score"],
+        reverse=True
+    )
 
 
-        # Top candidate
-        top_candidate = results[0]
+    for i, result in enumerate(results):
 
-        metric1, metric2, metric3 = st.columns(3)
-
-        metric1.metric(
-            "Candidates Screened",
-            len(results)
-        )
-
-        metric2.metric(
-            "Top Candidate",
-            top_candidate["Candidate"]
-        )
-
-        metric3.metric(
-            "Highest NLP Score",
-            f"{top_candidate['NLP Similarity']}%"
-        )
+        result["Rank"] = i + 1
 
 
-        # Ranking table
+    # ==============================
+    # Results
+    # ==============================
 
-        st.dataframe(
-            results,
-            use_container_width=True,
-            hide_index=True
-        )
+    st.divider()
+
+    st.subheader(
+        "🏆 AI Candidate Ranking"
+    )
 
 
-        # ------------------------------
-        # Explanation
-        # ------------------------------
+    top = results[0]
 
-        st.subheader("🧠 How the Score Works")
 
-        st.write(
-            """
-            **TF-IDF (Term Frequency-Inverse Document Frequency)**
-            converts the Job Description and each resume into numerical
-            vectors based on important words.
+    metric1, metric2, metric3 = st.columns(3)
 
-            **Cosine Similarity** then measures how closely each resume
-            matches the Job Description.
 
-            A higher percentage means greater lexical overlap with the JD.
-            """
-        )
+    metric1.metric(
+        "Candidates Screened",
+        len(results)
+    )
+
+
+    metric2.metric(
+        "Top Candidate",
+        top["Candidate"]
+    )
+
+
+    metric3.metric(
+        "Highest Score",
+        f"{top['Final Score']}%"
+    )
+
+
+    # ==============================
+    # Ranking Table
+    # ==============================
+
+    st.dataframe(
+
+        [
+            {
+                "Rank": r["Rank"],
+                "Candidate": r["Candidate"],
+                "Final Score": r["Final Score"],
+                "NLP Score": r["NLP Similarity"],
+                "LLM Score": r["LLM Fit Score"],
+                "Experience": r["Experience"],
+                "Education": r["Education"]
+            }
+
+            for r in results
+        ],
+
+        use_container_width=True,
+
+        hide_index=True
+    )
+
+
+    # ==============================
+    # Candidate Details
+    # ==============================
+
+    st.subheader(
+        "🔍 Candidate Evaluations"
+    )
+
+
+    for result in results:
+
+        with st.expander(
+            f"#{result['Rank']} | "
+            f"{result['Candidate']} — "
+            f"{result['Final Score']}%"
+        ):
+
+            st.write(
+                f"**Experience:** "
+                f"{result['Experience']}"
+            )
+
+            st.write(
+                f"**Education:** "
+                f"{result['Education']}"
+            )
+
+            st.write(
+                f"**Matched Skills:** "
+                f"{result['Matched Skills'] or 'None identified'}"
+            )
+
+            st.write(
+                f"**Missing Skills:** "
+                f"{result['Missing Skills'] or 'None identified'}"
+            )
+
+            st.write(
+                f"**AI Reasoning:** "
+                f"{result['Rationale']}"
+            )
