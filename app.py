@@ -1,6 +1,13 @@
 import streamlit as st
 from pypdf import PdfReader
 from docx import Document
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+# ==============================
+# Page Configuration
+# ==============================
 
 st.set_page_config(
     page_title="TalentRank AI",
@@ -17,8 +24,8 @@ def extract_text_from_file(uploaded_file):
 
     file_name = uploaded_file.name.lower()
 
-    # PDF
     if file_name.endswith(".pdf"):
+
         reader = PdfReader(uploaded_file)
 
         text = ""
@@ -28,8 +35,8 @@ def extract_text_from_file(uploaded_file):
 
         return text
 
-    # DOCX
     elif file_name.endswith(".docx"):
+
         document = Document(uploaded_file)
 
         text = "\n".join(
@@ -39,11 +46,39 @@ def extract_text_from_file(uploaded_file):
 
         return text
 
-    # TXT
     elif file_name.endswith(".txt"):
+
         return uploaded_file.read().decode("utf-8")
 
     return ""
+
+
+# ==============================
+# TF-IDF Similarity
+# ==============================
+
+def calculate_similarity(jd_text, resumes):
+
+    documents = [jd_text] + [
+        resume["text"] for resume in resumes
+    ]
+
+    vectorizer = TfidfVectorizer(
+        stop_words="english",
+        max_features=2000
+    )
+
+    tfidf_matrix = vectorizer.fit_transform(documents)
+
+    similarity_scores = cosine_similarity(
+        tfidf_matrix[0:1],
+        tfidf_matrix[1:]
+    ).flatten()
+
+    return [
+        round(float(score) * 100, 2)
+        for score in similarity_scores
+    ]
 
 
 # ==============================
@@ -51,8 +86,15 @@ def extract_text_from_file(uploaded_file):
 # ==============================
 
 st.title("⚡ TalentRank AI")
-st.caption("AI-Powered Resume Screening Agent")
+st.caption(
+    "AI-Powered Resume Screening Agent | "
+    "TF-IDF + Cosine Similarity"
+)
 
+
+# ==============================
+# Sidebar
+# ==============================
 
 with st.sidebar:
 
@@ -60,16 +102,22 @@ with st.sidebar:
 
     st.info(
         "Upload a Job Description and multiple candidate "
-        "resumes to screen candidates automatically."
+        "resumes to rank candidates."
     )
 
+    st.markdown("---")
+
+    st.subheader("📊 Current Scoring")
+
+    st.write("NLP Similarity: **100%**")
+
+
+# ==============================
+# Input Section
+# ==============================
 
 col1, col2 = st.columns(2)
 
-
-# ==============================
-# Job Description
-# ==============================
 
 with col1:
 
@@ -91,10 +139,6 @@ with col1:
     )
 
 
-# ==============================
-# Resume Upload
-# ==============================
-
 with col2:
 
     st.subheader("📄 Candidate Resumes")
@@ -108,7 +152,7 @@ with col2:
     if uploaded_files:
 
         st.success(
-            f"{len(uploaded_files)} resume(s) uploaded successfully."
+            f"{len(uploaded_files)} resume(s) uploaded."
         )
 
         for file in uploaded_files:
@@ -124,7 +168,7 @@ st.divider()
 
 
 if st.button(
-    "🚀 Run Resume Screening",
+    "🚀 Run NLP Screening",
     type="primary",
     use_container_width=True
 ):
@@ -139,15 +183,11 @@ if st.button(
 
     else:
 
-        st.success("Inputs validated successfully!")
-
-        st.subheader("🔄 Screening Pipeline")
-
         # ------------------------------
         # Extract resumes
         # ------------------------------
 
-        extracted_resumes = []
+        resumes = []
 
         with st.spinner("Extracting resume text..."):
 
@@ -155,37 +195,127 @@ if st.button(
 
                 text = extract_text_from_file(file)
 
-                extracted_resumes.append({
+                resumes.append({
                     "filename": file.name,
                     "text": text
                 })
 
-        st.success(
-            f"Successfully extracted "
-            f"{len(extracted_resumes)} resume(s)."
+
+        # ------------------------------
+        # Validate extraction
+        # ------------------------------
+
+        valid_resumes = [
+            resume
+            for resume in resumes
+            if resume["text"].strip()
+        ]
+
+        if not valid_resumes:
+
+            st.error(
+                "Could not extract text from the uploaded resumes."
+            )
+
+            st.stop()
+
+
+        # ------------------------------
+        # TF-IDF scoring
+        # ------------------------------
+
+        with st.spinner(
+            "Calculating TF-IDF similarity scores..."
+        ):
+
+            scores = calculate_similarity(
+                jd_text,
+                valid_resumes
+            )
+
+
+        # ------------------------------
+        # Create ranking
+        # ------------------------------
+
+        results = []
+
+        for i, resume in enumerate(valid_resumes):
+
+            results.append({
+                "Rank": 0,
+                "Candidate": resume["filename"],
+                "NLP Similarity": scores[i]
+            })
+
+
+        results.sort(
+            key=lambda x: x["NLP Similarity"],
+            reverse=True
         )
 
+
+        for i, result in enumerate(results):
+
+            result["Rank"] = i + 1
+
+
         # ------------------------------
-        # Show extracted resumes
+        # Display results
         # ------------------------------
 
-        st.subheader("📄 Extracted Resume Text")
+        st.success(
+            f"Successfully screened {len(results)} candidate(s)."
+        )
 
-        for resume in extracted_resumes:
+        st.subheader("🏆 Candidate Ranking")
 
-            with st.expander(resume["filename"]):
 
-                if resume["text"].strip():
+        # Top candidate
+        top_candidate = results[0]
 
-                    st.text_area(
-                        "Extracted text",
-                        resume["text"],
-                        height=250,
-                        key=resume["filename"]
-                    )
+        metric1, metric2, metric3 = st.columns(3)
 
-                else:
+        metric1.metric(
+            "Candidates Screened",
+            len(results)
+        )
 
-                    st.warning(
-                        "No text could be extracted from this file."
-                    )
+        metric2.metric(
+            "Top Candidate",
+            top_candidate["Candidate"]
+        )
+
+        metric3.metric(
+            "Highest NLP Score",
+            f"{top_candidate['NLP Similarity']}%"
+        )
+
+
+        # Ranking table
+
+        st.dataframe(
+            results,
+            use_container_width=True,
+            hide_index=True
+        )
+
+
+        # ------------------------------
+        # Explanation
+        # ------------------------------
+
+        st.subheader("🧠 How the Score Works")
+
+        st.write(
+            """
+            **TF-IDF (Term Frequency-Inverse Document Frequency)**
+            converts the Job Description and each resume into numerical
+            vectors based on important words.
+
+            **Cosine Similarity** then measures how closely each resume
+            matches the Job Description.
+
+            A higher percentage means greater lexical overlap with the JD.
+            """
+        )
