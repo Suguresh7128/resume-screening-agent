@@ -1,0 +1,9 @@
+Arjun Mehta
+Staff Software Engineer
+
+Summary: 8 years of production Python engineering across APIs, data systems, and machine learning tooling.
+Skills: Python, Django, FastAPI, PostgreSQL, Docker, AWS, Git, REST, Celery, Kafka, Terraform, Prometheus, LLM integration
+Experience: 8 years. Staff Engineer at BlueOrbit (2018-2026), led Django and FastAPI services, Kafka pipelines, AWS EKS, CI/CD, and an internal retrieval assistant. Owned architecture and production incident response.
+Education: M.S. Computer Science, University of Pune, 2018; B.E. Information Technology, 2016.
+Projects: Multi-tenant feature store and prompt evaluation service.
+Certifications: AWS Solutions Architect Associate.

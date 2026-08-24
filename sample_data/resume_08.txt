@@ -1,0 +1,8 @@
+Vikram Das
+ML Engineer
+
+Summary: 3 years developing machine learning experiments and Python notebooks.
+Skills: Python, scikit-learn, pandas, NumPy, Jupyter, SQL, Git, TensorFlow
+Experience: 3 years at VisionGrid. Trained classification models, prepared data, and built evaluation notebooks. Limited production API ownership.
+Education: M.Tech Artificial Intelligence, IIIT Hyderabad, 2023.
+Projects: Image quality classifier and recommendation prototype.

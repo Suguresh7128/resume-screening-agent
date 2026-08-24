@@ -1,0 +1,9 @@
+Nisha Rao
+Backend Developer
+
+Summary: Python backend developer with 5 years delivering secure web services.
+Skills: Python, FastAPI, PostgreSQL, Docker, Git, REST APIs, AWS Lambda, pytest, Redis, SQL
+Experience: 5 years at CivicStack (2021-2026). Built FastAPI APIs, PostgreSQL reporting, Docker workflows, AWS Lambda jobs, and automated pytest coverage.
+Education: B.Tech Computer Science, NIT Surat, 2020.
+Projects: Public benefits eligibility API with audit logging.
+Certifications: None listed.

@@ -1,0 +1,8 @@
+Leena Joseph
+Platform Engineer
+
+Summary: 4 years in cloud automation and Python service development.
+Skills: Python, Flask, PostgreSQL, AWS, Docker, Git, Terraform, Kubernetes, Jenkins, REST APIs
+Experience: 4 years at CloudCove (2022-2026), maintained Flask services, AWS infrastructure, Kubernetes deployments, and Jenkins pipelines. Improved deployment reliability.
+Education: MCA, Christ University, 2021.
+Projects: Internal deployment platform with Terraform and Kubernetes.

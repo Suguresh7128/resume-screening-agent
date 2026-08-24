@@ -1,0 +1,8 @@
+Rohan Kulkarni
+Data and API Engineer
+
+Summary: 5 years working on Python data services and analytics APIs.
+Skills: Python, FastAPI, SQL, PostgreSQL, Git, pandas, Airflow, Docker, GCP, REST
+Experience: 5 years at InsightWorks. Developed FastAPI data endpoints, Airflow workflows, PostgreSQL reporting, and Docker-based batch jobs.
+Education: B.Sc. Computer Science, Fergusson College, 2020.
+Projects: Revenue forecasting data pipeline. LLM experience not specified.

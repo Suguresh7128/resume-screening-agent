@@ -1,0 +1,9 @@
+Maya Iyer
+Senior Backend Engineer
+
+Summary: Backend engineer with 7 years building Python platforms and AI products.
+Skills: Python, FastAPI, PostgreSQL, Docker, AWS, Git, REST APIs, asyncio, CI/CD, Redis, Kubernetes, OpenAI API
+Experience: 7 years. Senior Engineer at Northstar Labs (2019-2026), designed FastAPI services, PostgreSQL schemas, AWS ECS deployments, observability, and an LLM support assistant. Mentored six engineers.
+Education: B.Tech in Computer Science, Vellore Institute of Technology, 2018. CGPA 8.7/10.
+Projects: Event-driven document processing platform with Redis and Kubernetes.
+Certifications: AWS Certified Developer Associate.

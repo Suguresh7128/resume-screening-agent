@@ -1,0 +1,17 @@
+[
+  {
+    "Rank": 1,
+    "Candidate": "Maya Iyer",
+    "Final Score": 92.0,
+    "NLP Score": 88.0,
+    "LLM Score": 94.0,
+    "Experience": "7 years",
+    "Education": "B.Tech Computer Science",
+    "Qualification": "B.Tech Computer Science",
+    "Graduation Year": "2018",
+    "Matched Skills": "Python, FastAPI, PostgreSQL, AWS",
+    "Missing Skills": "",
+    "Rationale": "Example deterministic preview; run with Groq for actual evaluation.",
+    "Status": "Strong Match"
+  }
+]

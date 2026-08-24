@@ -1,0 +1,8 @@
+Dev Malhotra
+Frontend Developer
+
+Summary: 2 years building accessible browser experiences.
+Skills: React, JavaScript, TypeScript, CSS, HTML, Git, Figma
+Experience: 2 years at BrightDesk creating React components and design system documentation.
+Education: B.Des Interaction Design, 2024.
+Projects: Accessible scheduling interface. Python and backend experience not specified.

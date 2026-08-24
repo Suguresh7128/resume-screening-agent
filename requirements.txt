@@ -1,6 +1,7 @@
-streamlit
-pypdf
-python-docx
-scikit-learn
-groq
-pandas
+streamlit>=1.40,<2
+pypdf>=5,<7
+python-docx>=1.1,<2
+scikit-learn>=1.4,<2
+groq>=0.11,<1
+pandas>=2.0,<3
+pytest>=8,<9

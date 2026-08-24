@@ -1,0 +1,8 @@
+Ishita Sen
+Research Assistant
+
+Summary: Early-career researcher focused on natural language processing.
+Skills: Python, NLP, PyTorch, transformers, pandas, Jupyter, Git
+Experience: 1 year research internship at Language Lab (2025-2026), evaluated text classification models and prepared datasets.
+Education: M.S. Data Science, University of Hyderabad, 2025.
+Projects: LLM prompt evaluation study. Production APIs and cloud deployment not specified.

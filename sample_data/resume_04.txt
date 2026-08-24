@@ -1,0 +1,8 @@
+Kabir Shah
+Full Stack Engineer
+
+Summary: 6 years building customer-facing applications with a Python backend.
+Skills: Python, Django, PostgreSQL, REST APIs, Docker, Git, React, JavaScript, Azure, CI/CD
+Experience: 6 years at MarketSpring (2020-2026), built Django APIs, PostgreSQL data models, Dockerized services, and Azure release pipelines. Partnered with frontend and product teams.
+Education: B.E. Software Engineering, MIT-WPU, 2019.
+Projects: Subscription billing and customer analytics portal.

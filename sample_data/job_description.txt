@@ -1,0 +1,5 @@
+Senior Backend / AI Platform Engineer
+
+We are looking for a hands-on engineer to build reliable Python services and AI-enabled products. Required: 4+ years of backend development, Python, FastAPI or Django, REST APIs, PostgreSQL, Docker, Git, cloud deployment on AWS, and production testing. Strong candidates have experience with asynchronous systems, CI/CD, observability, and integrating LLM APIs. A bachelor's degree in Computer Science or a related discipline is preferred.
+
+Responsibilities include designing APIs, owning data-intensive services, improving reliability, reviewing code, and collaborating with product and ML teams.

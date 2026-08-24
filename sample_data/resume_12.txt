@@ -1,0 +1,8 @@
+Omar Khan
+Systems Analyst
+
+Summary: 7 years supporting enterprise systems and business operations.
+Skills: Excel, SQL, ServiceNow, Linux, ITIL, documentation, incident management
+Experience: 7 years in IT operations at EnterpriseBridge. Managed service tickets, runbooks, access reviews, and incident communications.
+Education: B.Com, University of Mumbai, 2017.
+Projects: Service desk reporting dashboard. Application development experience not specified.

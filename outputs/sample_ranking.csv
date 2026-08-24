@@ -1,0 +1,4 @@
+Rank,Candidate,Final Score,NLP Score,LLM Score,Experience,Education,Qualification,Graduation Year,Matched Skills,Missing Skills,Rationale,Status
+1,Maya Iyer,92.0,88.0,94.0,7 years,B.Tech Computer Science,B.Tech Computer Science,2018,"Python, FastAPI, PostgreSQL, AWS","","Example deterministic preview; run with Groq for actual evaluation.",Strong Match
+2,Arjun Mehta,89.0,84.0,92.0,8 years,M.S. Computer Science,M.S. Computer Science,2018,"Python, FastAPI, PostgreSQL, AWS","","Example deterministic preview; run with Groq for actual evaluation.",Strong Match
+3,Nisha Rao,78.0,76.0,80.0,5 years,B.Tech Computer Science,B.Tech Computer Science,2020,"Python, FastAPI, PostgreSQL","AWS, LLM APIs","Example deterministic preview; run with Groq for actual evaluation.",Good Match

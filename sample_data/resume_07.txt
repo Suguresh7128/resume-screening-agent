@@ -1,0 +1,8 @@
+Tara Menon
+Software Engineer
+
+Summary: 3 years of full stack development, primarily JavaScript with growing Python experience.
+Skills: JavaScript, TypeScript, Node.js, React, Python, Django, MySQL, Git, REST APIs
+Experience: 3 years at PixelBay (2023-2026). Built Node.js and Django endpoints, React interfaces, and MySQL integrations.
+Education: B.Tech Information Technology, SRM University, 2022.
+Projects: Customer support dashboard and notification service.

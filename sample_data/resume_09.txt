@@ -1,0 +1,8 @@
+Sara Fernandes
+QA Automation Analyst
+
+Summary: 4 years in test automation and release quality for web products.
+Skills: Python, Selenium, pytest, SQL, Git, Jira, Java, Postman
+Experience: 4 years at RetailWorks. Created API regression suites, maintained CI test jobs, and partnered with developers on release quality.
+Education: BCA, Goa University, 2021.
+Projects: Automated checkout regression framework. Backend service ownership not specified.
